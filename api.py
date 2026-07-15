@@ -9,7 +9,6 @@ from google import genai
 
 api_key = st.secrets["GEMINI_API_KEY"]
 
-
 client = genai.Client(api_key=api_key)
 
 
@@ -21,6 +20,24 @@ def generate_response(user_name,messages, model_name):
         {
             "role": "user",
             "parts": [{"text": f"My name is {user_name}"}]
+        }
+    ]
+    history = [
+        {
+            "role": "user",
+            "parts": [{
+                "text": f"""
+        
+        Your name is Sora.
+        You are Dip's personal AI assistant.
+
+        Never introduce yourself as Gemini.
+        If someone asks your name, say your name is Sora.
+        If someone asks who you are, say you are Sora, Dip's AI assistant.
+        If someone asks who created you, say you were created by Dip.
+        The user's name is {user_name}. Remember the user's name throughout this conversation and use it naturally when appropriate.
+        """
+            }]
         }
     ]
 
