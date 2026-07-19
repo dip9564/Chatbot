@@ -1,8 +1,8 @@
 import streamlit as st
 import time
-import pyttsx3
 import subprocess
 from api import generate_response
+import streamlit.components.v1 as components
     
 st.set_page_config(
     page_title="AI Assistant",
@@ -250,7 +250,7 @@ if "user_name" not in st.session_state:
 
 if st.session_state.user_name == "":
 
-    st.title("👋 Welcome")
+    st.title("👋 Welcome I'm Sora")
 
     Name = st.text_input(
         "Enter your name",
@@ -288,7 +288,7 @@ with st.popover(""):
     voice_mode = st.checkbox("Voice Mode",False)
     voice = st.selectbox(
         "voice",
-        ["Samantha", "Alex", "Soumya","Karen","Moira","Aman"],
+        ["Samantha", "Soumya","Karen","Moira"],
         label_visibility="collapsed"
     )
 
@@ -306,9 +306,6 @@ if "chats" not in st.session_state:
 
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = "New Chat"
-
-if "speaker_process" not in st.session_state:
-    st.session_state.speaker_process = None
 
 # ---------- Display Messages ----------
 messages = st.session_state.chats[
@@ -360,12 +357,6 @@ if prompt := st.chat_input("Message..."):
     st.session_state.pending_response = True
     st.rerun()
 
-if "engine" not in st.session_state:
-    engine = pyttsx3.init()
-    engine.setProperty("rate", 200)
-    engine.setProperty("volume", 1.0)
-    st.session_state.engine = engine
-
 if (
     st.session_state.pending_response
     and messages
@@ -392,15 +383,41 @@ if (
         model
     )
 
-    # Stop previous speech immediately
-    if st.session_state.speaker_process is not None:
-        st.session_state.speaker_process.terminate()
-
-    # Start new speech
     if voice_mode:
-        st.session_state.speaker_process = subprocess.Popen(
-            ["say", "-v", voice, response]
-        )
+        components.html(
+        f"""
+        <script>
+        const selectedVoice = {voice!r};
+        const text = {response!r};
+
+        function speak() {{
+            speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+
+            const voices = speechSynthesis.getVoices();
+
+            const found = voices.find(v => v.name === selectedVoice);
+
+            if (found) {{
+                utterance.voice = found;
+            }} else {{
+                console.log("Voice not found:", selectedVoice);
+                utterance.voice = voices[0];
+            }}
+
+            speechSynthesis.speak(utterance);
+        }}
+
+        if (speechSynthesis.getVoices().length === 0) {{
+            speechSynthesis.onvoiceschanged = speak;
+        }} else {{
+            speak();
+        }}
+        </script>
+        """,
+        height=0,
+    )
 
     text = ""
     for ch in response:
@@ -418,7 +435,7 @@ if (
         )
         if voice_mode:
             time.sleep(0.05)
-        else: time.sleep(0.005)
+        else: time.sleep(0.0045)
 
     # Remove cursor at the end
     placeholder.markdown(
