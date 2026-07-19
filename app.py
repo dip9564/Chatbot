@@ -1,5 +1,7 @@
 import streamlit as st
 import time
+import pyttsx3
+import subprocess
 from api import generate_response
     
 st.set_page_config(
@@ -282,6 +284,13 @@ with st.popover(""):
         ["💨 gemini 3.1 flash lite", "🧠 Gemini 3 (creative)","⚡ Gemini 3.5 Flash (complex)"],
         label_visibility="collapsed"
     )
+    st.markdown("##### Voices")
+    voice_mode = st.checkbox("Voice Mode",False)
+    voice = st.selectbox(
+        "voice",
+        ["Samantha", "Alex", "Soumya","Karen","Moira","Aman"],
+        label_visibility="collapsed"
+    )
 
 
 # ---------- Session ----------
@@ -297,6 +306,9 @@ if "chats" not in st.session_state:
 
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = "New Chat"
+
+if "speaker_process" not in st.session_state:
+    st.session_state.speaker_process = None
 
 # ---------- Display Messages ----------
 messages = st.session_state.chats[
@@ -348,6 +360,11 @@ if prompt := st.chat_input("Message..."):
     st.session_state.pending_response = True
     st.rerun()
 
+if "engine" not in st.session_state:
+    engine = pyttsx3.init()
+    engine.setProperty("rate", 200)
+    engine.setProperty("volume", 1.0)
+    st.session_state.engine = engine
 
 if (
     st.session_state.pending_response
@@ -374,7 +391,16 @@ if (
         messages[-20:],
         model
     )
-    # response = generate_response(prompt,model)
+
+    # Stop previous speech immediately
+    if st.session_state.speaker_process is not None:
+        st.session_state.speaker_process.terminate()
+
+    # Start new speech
+    if voice_mode:
+        st.session_state.speaker_process = subprocess.Popen(
+            ["say", "-v", voice, response]
+        )
 
     text = ""
     for ch in response:
@@ -390,7 +416,9 @@ if (
             """,
             unsafe_allow_html=True
         )
-        time.sleep(0.005)
+        if voice_mode:
+            time.sleep(0.05)
+        else: time.sleep(0.005)
 
     # Remove cursor at the end
     placeholder.markdown(
