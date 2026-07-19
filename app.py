@@ -285,10 +285,10 @@ with st.popover(""):
         label_visibility="collapsed"
     )
     st.markdown("##### Voices")
-    voice_mode = st.checkbox("Voice Mode",False)
+    voice_mode = st.checkbox("Voice Mode",True)
     voice = st.selectbox(
         "voice",
-        ["Samantha", "Soumya","Karen","Moira"],
+        ["Soumya","Samantha","Karen","Moira"],
         label_visibility="collapsed"
     )
 

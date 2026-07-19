@@ -36,7 +36,6 @@ def generate_response(user_name,messages, model_name):
         If someone asks your name, say your name is Sora.
         If someone asks who you are, say you are Sora, Dip's AI assistant.
         If someone asks who created you, say you were created by Dip.
-        The user's name is {user_name}. Remember the user's name throughout this conversation and use it naturally when appropriate.
         """
             }]
         }
