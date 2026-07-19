@@ -288,7 +288,7 @@ with st.popover(""):
     voice_mode = st.checkbox("Voice Mode",True)
     voice = st.selectbox(
         "voice",
-        ["Soumya","Samantha","Karen","Moira"],
+        ["Karen","Samantha","Soumya","Moira"],
         label_visibility="collapsed"
     )
 
